@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Laravel</title>
+    <style>
+        .countdown {
+            padding-bottom: 60px;
+        }
+
+        .countdown h2 {
+            text-align: center;
+            width: 100%;
+        }
+
+        .countdown .countDown {
+            display: flex;
+            justify-content: center;
+        }
+
+        .countdown .countDown .containers {
+            width: 15%;
+        }
+
+        .countdown .countDown .containers .a div {
+            display: block;
+            height: 100px;
+            text-align: center;
+            position: relative;
+            font-size: 80px;
+            color: #2481c6;
+        }
+
+        .countdown .countDown .containers:nth-child(1) .a div::after {
+            content: 'Day';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #727272;
+        }
+
+        .countdown .countDown .containers:nth-child(2) .a div::after {
+            content: 'Hour';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #727272;
+        }
+
+        .countdown .countDown .containers:nth-child(3) .a div::after {
+            content: 'Minute';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #727272;
+        }
+
+        .countdown .countDown .containers:nth-child(4) .a div::after {
+            content: 'Second';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #727272;
+        }
+
+        @media screen and (max-width: 850px) {
+            .countdown .countDown {
+                justify-content: space-around;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .countdown .countDown {
+                flex-wrap: wrap;
+            }
+
+            .countdown .countDown .containers {
+                width: 50%;
+                padding-top: 30px;
+            }
+        }
+
+        @media screen and (max-width: 350px) {
+            .countdown .countDown .containers {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="countdown">
+        <h2>Countdown</h2>
+        <div class="countDown">14/07/2030 00:00:00</div>
+    </div>
+    <div class="countdown">
+        <h2>Countdown</h2>
+        <div class="countDown">14/07/2030 00:00:00</div>
+    </div>
+    <div class="countdown">
+        <h2>Countdown</h2>
+        <div class="countDown">14/07/2030 00:00:00</div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(function() {
+
+            countDown.init();
+            for (var i = 0; i < countDown.validElements.length; i++) {
+                countDown.changeTime(countDown.validElements[i], countDown.endDate[i], i);
+            };
+            setInterval(function() {
+                for (var i = 0; i < countDown.validElements.length; i++) {
+                    countDown.changeTime(countDown.validElements[i], countDown.endDate[i], i);
+                };
+            }, 1000);
+        });
+
+        var countDown = {
+            endDate: [],
+            validElements: [],
+            display: [],
+            initialHeight: undefined,
+            initialInnerDivMarginTop: undefined,
+            originalBorderTopStyle: undefined,
+
+            init: function(element, number) {
+                $('.countDown').each(function(index) {
+                    var regex_match = $(this).text().match(
+                        /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})/);
+                    countDown.validElements.push($(this));
+                    var end = new Date(regex_match[3], regex_match[2] - 1, regex_match[1], regex_match[4],
+                        regex_match[5], regex_match[6]);
+
+                    if (end > new Date()) {
+                        countDown.endDate.push(end);
+                        countDown.changeTime($(this), end, index);
+                        $(this).html("");
+
+                        for (var i = 0; i < countDown.display.next.length; i++) {
+
+                            if (i == countDown.display.next.length - 1) {
+                                $(this).append("<div class='containers'><div class='a'><div>" + countDown
+                                    .display.next[i]);
+                            } else {
+                                $(this).append("<div class='containers'><div class='a'><div>" + countDown
+                                    .display.next[i]);
+                            }
+                        }
+
+                    } else {
+                        $(this).css('display','none');
+                    }
+                });
+            },
+
+            reset: function(element, number) {
+                var element1 = element.find('div.a');
+            },
+
+            changeTime: function(element, endTime, elementIndex) {
+                if (typeof endTime !== 'undefined') {
+                    var today = new Date();
+
+                    if (today.getTime() <= endTime.getTime()) {
+                        today = new Date();
+                        countDown.display = {
+                            'last': [],
+                            'next': []
+                        };
+
+                        var seconds = Math.floor((endTime.getTime() - today.getTime()) / 1000) + 1;
+                        countDown.display.last = countDown.calcTime(seconds);
+                        seconds = Math.floor((endTime.getTime() - today.getTime()) / 1000);
+                        countDown.display.next = countDown.calcTime(seconds);
+
+                        for (var i = 0; i < countDown.display.next.length; i++) {
+                            if (countDown.display.next[i].toString().length == 1) {
+                                countDown.display.next[i] = '0' + countDown.display.next[i];
+                            }
+
+                            if (countDown.display.last[i].toString().length == 1) {
+                                countDown.display.last[i] = '0' + countDown.display.last[i];
+                            }
+
+                            $(element.find('div.containers div.a div')[i]).text(countDown.display.last[i]);
+                            countDown.reset(element.find('div.containers'));
+                        }
+                    } else {
+                        element.html("<p class='end'>Timeout</p>");
+                    }
+                }
+            },
+
+            calcTime: function(seconds) {
+                var array = [];
+                array[0] = Math.floor(seconds / 86400);
+                seconds -= array[0] * 86400;
+                array[1] = Math.floor(seconds / 3600);
+                seconds -= array[1] * 3600;
+                array[2] = Math.floor(seconds / 60);
+                seconds -= array[2] * 60;
+                array[3] = seconds;
+                return [array[0], array[1], array[2], array[3]];
+            }
+        }
+    </script>
+</body>
+
+</html>
